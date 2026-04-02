@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:totel_x_task/view/widgets/add_custom_button.dart';
+import 'package:totel_x_task/view/widgets/add_custom_textfeild.dart';
+import 'package:totel_x_task/view/widgets/add_image_picker.dart';
 import '../../controllers/user_controller.dart';
+
 
 class AddUserScreen extends StatefulWidget {
   const AddUserScreen({super.key});
@@ -27,12 +30,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final picked = await ImagePicker()
-        .pickImage(source: ImageSource.gallery, imageQuality: 70);
-    if (picked != null) setState(() => _pickedImage = File(picked.path));
-  }
-
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSubmitting = true);
@@ -51,8 +48,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed. Try again.')),
-      );
+          const SnackBar(content: Text('Failed to add user. Please try again.')));
     }
   }
 
@@ -60,11 +56,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Add A New User'),
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-      ),
+      appBar: AppBar(title: const Text('Add A New User'), backgroundColor: Colors.white, elevation: 0.5),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -72,115 +64,35 @@ class _AddUserScreenState extends State<AddUserScreen> {
           child: Column(
             children: [
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: _pickImage,
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey.shade200,
-                      backgroundImage: _pickedImage != null
-                          ? FileImage(_pickedImage!)
-                          : null,
-                      child: _pickedImage == null
-                          ? const Icon(Icons.person,
-                              size: 50, color: Colors.grey)
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.camera_alt,
-                            size: 16, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              AddImagePicker(radius: 50, onImagePicked: (file) => _pickedImage = file),
               const SizedBox(height: 24),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: UnderlineInputBorder(),
-                ),
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'Name നൽകുക' : null,
-              ),
+              AddCustomTextfeild(controller: _nameController, label: 'Name', validator: (val) => val == null || val.isEmpty ? 'Please enter name' : null),
               const SizedBox(height: 16),
-              TextFormField(
+              AddCustomTextfeild(
                 controller: _phoneController,
+                label: 'Phone Number',
                 keyboardType: TextInputType.phone,
                 maxLength: 10,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: UnderlineInputBorder(),
-                  counterText: '',
-                ),
-                validator: (val) {
-                  if (val == null || val.length != 10) {
-                    return 'Valid 10-digit number നൽകുക';
-                  }
-                  return null;
-                },
+                validator: (val) => val == null || val.length != 10 ? 'Please enter a valid 10-digit number' : null,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              AddCustomTextfeild(
                 controller: _ageController,
+                label: 'Age',
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Age',
-                  border: UnderlineInputBorder(),
-                ),
                 validator: (val) {
-                  if (val == null || val.isEmpty) return 'Age നൽകുക';
+                  if (val == null || val.isEmpty) return 'Please enter age';
                   final age = int.tryParse(val);
-                  if (age == null || age <= 0 || age > 120) {
-                    return 'Valid age നൽകുക';
-                  }
+                  if (age == null || age <= 0 || age > 120) return 'Please enter a valid age';
                   return null;
                 },
               ),
               const SizedBox(height: 40),
               Row(
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Cancel',
-                          style: TextStyle(color: Colors.black87)),
-                    ),
-                  ),
+                  Expanded(child: AddCustomButton(text: 'Cancel', isOutlined: true, onPressed: () => Navigator.pop(context))),
                   const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: _isSubmitting
-                          ? const CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2)
-                          : const Text('Save',
-                              style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
+                  Expanded(child: AddCustomButton(text: 'Save', isLoading: _isSubmitting, onPressed: _submit)),
                 ],
               ),
             ],

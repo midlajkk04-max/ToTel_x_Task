@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:totel_x_task/view/widgets/login_custom_textfeild.dart';
+import 'package:totel_x_task/view/widgets/login_custtom_button.dart';
 import '../../controllers/auth_controller.dart';
 import 'otp_screen.dart';
 
@@ -47,41 +49,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 const Text(
                   'Enter Phone Number',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                LoginCustomTextfeild(
                   controller: _phoneController,
+                  label: 'Phone Number',
+                  hint: 'Enter 10-digit number',
                   keyboardType: TextInputType.phone,
                   maxLength: 10,
-                  decoration: InputDecoration(
-                    hintText: 'Enter Phone Number *',
-                    counterText: '',
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                  ),
                   validator: (val) {
                     if (val == null || val.length != 10) {
-                      return 'Valid 10-digit number നൽകുക';
+                      return 'Please enter valid 10-digit number';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'By Continuing, I agree to Totalx\'s Terms and condition & privacy policy.',
+                  'By continuing, you agree to Totalx Terms & Privacy Policy.',
                   style: TextStyle(fontSize: 11, color: Colors.grey),
                 ),
                 const SizedBox(height: 24),
@@ -90,8 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (ctrl.error != null) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(ctrl.error!,
-                            style: const TextStyle(color: Colors.red)),
+                        child: Text(ctrl.error!, style: const TextStyle(color: Colors.red)),
                       );
                     }
                     return const SizedBox.shrink();
@@ -99,44 +84,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Consumer<AuthController>(
                   builder: (context, ctrl, _) {
-                    return SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: ctrl.state == AuthState.loading
-                            ? null
-                            : () async {
-                                if (!_formKey.currentState!.validate())
-                                  return;
-                                await ctrl.sendOtp(
-                                    _phoneController.text.trim());
-                                if (ctrl.state == AuthState.otpSent &&
-                                    context.mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => OtpScreen(
-                                          phone: _phoneController.text
-                                              .trim()),
-                                    ),
-                                  );
-                                }
-                              },
-                        child: ctrl.state == AuthState.loading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2)
-                            : const Text(
-                                'Get OTP',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                      ),
+                    return LoginCusttomButton(
+                      text: 'Get OTP',
+                      isLoading: ctrl.state == AuthState.loading,
+                      onPressed: () async {
+                        if (!_formKey.currentState!.validate()) return;
+                        await ctrl.sendOtp(_phoneController.text.trim());
+                        if (ctrl.state == AuthState.otpSent && context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OtpScreen(phone: _phoneController.text.trim()),
+                            ),
+                          );
+                        }
+                      },
                     );
                   },
                 ),

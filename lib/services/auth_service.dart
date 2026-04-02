@@ -10,9 +10,9 @@ class AuthService {
       final response = await _dio.get(
         '${AppConstants.msg91BaseUrl}/otp',
         queryParameters: {
-          'template_id': AppConstants.msg91TemplateId,
+          'template_id': AppConstants.templateid,
           'mobile': '91$phone',
-          'authkey': AppConstants.msg91AuthKey,
+          'authkey': AppConstants.authToken,
         },
       );
       return response.data['type'] == 'success';
@@ -32,7 +32,7 @@ class AuthService {
         queryParameters: {
           'mobile': '91$phone',
           'otp': otp,
-          'authkey': AppConstants.msg91AuthKey,
+          'authkey': AppConstants.authToken,
         },
       );
       return response.data['type'] == 'success';
