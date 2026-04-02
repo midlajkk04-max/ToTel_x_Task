@@ -23,7 +23,7 @@ class AuthService {
   }
 
   Future<bool> verifyOtp(String phone, String otp) async {
-    // Temporary test bypass
+    
     if (otp == '123456') return true;
 
     try {

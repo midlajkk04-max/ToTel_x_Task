@@ -19,7 +19,8 @@ class AuthController extends ChangeNotifier {
 
     final success = await _service.sendOtp(phone);
     _state = success ? AuthState.otpSent : AuthState.error;
-    if (!success) _error = 'OTP അയക്കാൻ കഴിഞ്ഞില്ല';
+
+    if (!success) _error = 'Failed to send OTP. Please try again.';
     notifyListeners();
   }
 
@@ -30,7 +31,8 @@ class AuthController extends ChangeNotifier {
 
     final success = await _service.verifyOtp(phone, otp);
     _state = success ? AuthState.verified : AuthState.error;
-    if (!success) _error = 'OTP തെറ്റാണ്';
+
+    if (!success) _error = 'The OTP entered is incorrect. Please try again.';
     notifyListeners();
   }
 
